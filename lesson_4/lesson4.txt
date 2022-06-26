@@ -1,0 +1,31 @@
+1. Потоки ввода/вывода. Создать файл, используя команду echo. Используя команду cat, прочитать содержимое всех файлов каталога etc, ошибки перенаправить в отдельный файл.
+echo hello world! > hello.txt
+cat /etc/*.* 1>etc_data.txt 2>etc_errors.txt
+
+2. Конвейер (pipeline). Использовать команду cut на вывод длинного списка каталога, чтобы отобразить только права доступа к файлам. Затем отправить в конвейере этот вывод на sort и uniq, чтобы отфильтровать все повторяющиеся строки.
+alex@alex-T590:~$ ls -l | cut -c 1-10 | sort | uniq
+drwx------
+drwxrwxr-x
+drwxr-xr-x
+-rw-rw-r--
+total 1164
+
+
+3. Управление процессами.) Изменить конфигурационный файл службы SSH: /etc/ssh/sshd_config, отключив аутентификацию по паролю PasswordAuthentication no. Выполните рестарт службы systemctl restart sshd (service sshd restart), верните аутентификацию по паролю, выполните reload службы systemctl reload sshd (services sshd reload). В чём различие между действиями restart и reload? Создайте файл при помощи команды cat > file_name, напишите текст и завершите комбинацией ctrl+d. Какой сигнал передадим процессу?
+
+ctrl+d - закрывает stdin pipe. (return 0)
+restart- останавливает сервис и запускает заново
+reload - дает команду демону перезагрузить конфигурацию
+
+4. Сигналы процессам. Запустите mc. Используя ps, найдите PID процесса, завершите процесс, передав ему сигнал 9.
+alex@alex-T590:~$ sudo apt install mc
+alex@alex-T590:~$ ps -a | grep mc
+ 786954 pts/0    00:00:00 systemctl
+ 788629 pts/0    00:00:00 systemctl
+ 794230 pts/0    00:00:00 mc
+alex@alex-T590:~$ kill 794230
+alex@alex-T590:~$ ps -a | grep mc
+ 786954 pts/0    00:00:00 systemctl
+ 788629 pts/0    00:00:00 systemctl
+
+

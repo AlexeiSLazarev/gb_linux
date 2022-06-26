@@ -1,0 +1,9 @@
+alex@alex-T590:~$ hostnamectl
+   Static hostname: alex-T590
+         Icon name: computer-laptop
+           Chassis: laptop
+        Machine ID: ab1540237d0c4d4bb1b5200018994627
+           Boot ID: d14ff917525a4279bc36fd985a8e661e
+  Operating System: Ubuntu 20.04.3 LTS
+            Kernel: Linux 5.11.0-41-generic
+      Architecture: x86-64

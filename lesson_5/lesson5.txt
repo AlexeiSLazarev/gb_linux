@@ -1,0 +1,62 @@
+1. Создать файл file1 и наполнить его произвольным содержимым. Скопировать его в file2. Создать символическую ссылку file3 на file1. Создать жёсткую ссылку file4 на file1. Посмотреть, какие inode у файлов. Удалить file1. Что стало с остальными созданными файлами? Попробовать вывести их на экран.
+alex@alex-T590:~$ cd ~
+alex@alex-T590:~$ cat > file1
+hello1
+hello2
+alex@alex-T590:~$ cp file1 file2
+alex@alex-T590:~$ ln -s file1 file3
+alex@alex-T590:~$ ls -i
+alex@alex-T590:~$ rm file1
+alex@alex-T590:~$ ls -i
+
+
+2. Дать созданным файлам другие, произвольные имена. Создать новую символическую ссылку. Переместить ссылки в другую директорию.
+
+alex@alex-T590:~$ mv file1 new_file1
+alex@alex-T590:~$ mv file2 new_file2
+alex@alex-T590:~$ mv file3 new_file3
+alex@alex-T590:~$ mv file4 new_file4
+
+ 1740  mkdir dir1
+ 1743  cp new_file1 ./dir1
+ 1744  ls dir1
+ 1745  cp new_file2 ./dir1
+ 1746  cp new_file3 ./dir1
+ 1747  cp new_file4 ./dir1
+
+При копировании символьной ссылки возникла ошибка
+alex@alex-T590:~$ cp new_file3 ./dir1
+cp: cannot stat 'new_file3': No such file or directory
+
+
+3. Создать два произвольных файла. Первому присвоить права на чтение и запись для владельца и группы, только на чтение — для всех. Второму присвоить права на чтение и запись только для владельца.
+
+alex@alex-T590:~/dir1$ chmod ug=rw,o=r new_file1
+alex@alex-T590:~/dir1$ chmod u=rx,go=--- new_file2
+
+4. * Создать группу developer и нескольких пользователей, входящих в неё. Создать директорию для совместной работы. Сделать так, чтобы созданные одними пользователями файлы могли изменять другие пользователи этой группы.
+
+sudo groupadd developer
+sudo mkdir -p /share
+sudo usermod -a -G developer dev1
+sudo usermod -a -G developer dev2
+
+sudo chgrp -R developer /share
+sudo chmod -R 2775 /share
+
+
+5. * Создать в директории для совместной работы поддиректорию для обмена файлами, но чтобы удалять файлы могли только их создатели.
+
+alex@alex-T590:~$ mkdir ./share/sticky_share
+alex@alex-T590:~$ chmod a+t ./share/sticky_share
+
+
+6. * Создать директорию, в которой есть несколько файлов. Сделать так, чтобы открыть файлы можно было посмотреть, только зная имя файла, а через ls список файлов посмотреть было нельзя.
+alex@alex-T590:~/dir1$ touch .hidden_file
+alex@alex-T590:~/dir1$ ls
+dir_share  new_file1  new_file2  new_file4
+alex@alex-T590:~/dir1$ ls -a
+.  ..  dir_share  .hidden_file  new_file1  new_file2  new_file4
+alex@alex-T590:~/dir1$ ls
+
+

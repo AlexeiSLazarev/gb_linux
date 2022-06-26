@@ -1,0 +1,91 @@
+2. Подключить репозиторий Docker.
+sudo apt-get update
+sudo apt-get install \
+    ca-certificates \
+    curl \
+    gnupg \
+    lsb-release
+    
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+  
+echo \
+"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+$(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  
+
+
+3. Запустить контейнер с Ubuntu.
+Докер файл для запуска контейнера с моделью распознавания речи wav2vec
+
+DockerFile
+FROM flml/flashlight:cpu-latest
+
+WORKDIR /wav2vec
+
+COPY . .
+RUN pip3 install torch==1.9.0+cpu torchaudio==0.9.0 -f https://download.pytorch.org/whl/torch_stable.html
+RUN pip3 install -e .
+RUN cd fairseq && pip3 install -e .
+RUN export USE_CUDA=0 && cd /root/flashlight/bindings/python && python3 setup.py install
+RUN pip3 install kafka-python
+
+
+ENTRYPOINT ["python3", "/wav2vec/asr/api/w2v-worker.py"]
+
+
+docker run -p 8000:8000 --name wav2vec -v /home/alex/data:/data -e W2V_CHECKPOINT=/data/best_checkpoint_merged.pt -e W2V_KEN_LM=/data/ru_wiyalen_no_punkt.arpa.binary -e W2V_LEXICON=/data/vosk_ru_upper_e.lexicon wav2vec
+
+
+
+4. * Используя Dockerfile, собрать связку nginx + PHP-FPM в одном контейнере.
+
+docker-compose.yml
+version: '1'
+
+services:
+    web:
+        image: nginx:latest
+        ports:
+            - "8080:80"
+        volumes:
+            - ./code:/code
+            - ./site.conf:/etc/nginx/conf.d/default.conf
+        networks:
+            - code-network
+    php:
+        image: php:fpm
+        volumes:
+            - ./code:/code
+        networks:
+            - code-network
+
+networks:
+    code-network:
+        driver: bridge
+        
+site.conf
+server {
+    listen 80;
+    index index.php index.html;
+    server_name localhost;
+    error_log  /var/log/nginx/error.log;
+    access_log /var/log/nginx/access.log;
+    root /code;
+
+    location ~ \.php$ {
+        try_files $uri =404;
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        fastcgi_pass php:9000;
+        fastcgi_index index.php;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param PATH_INFO $fastcgi_path_info;
+    }
+}
+
+./code/index.php
+<?php
+phpinfo();
+
+docker-compose up
+
